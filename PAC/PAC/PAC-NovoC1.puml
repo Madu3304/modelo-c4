@@ -1,0 +1,17 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 3GStore - Diagrama de Contexto
+
+Person(administrador, "Administrador", "Acessa o sistema para gerir estoque, produtos, fornecedores e vendas")
+
+System(ThreeGStore, "3GStore", "Sistema de gerenciamento de estoque e integração com APIs de vendas")
+
+System_Ext(APIsVendas, "APIs de Vendas", "APIs externas que fornecem dados de vendas")
+
+Rel(administrador, ThreeGStore, "Gerencia estoque, produtos, fornecedores e monitora vendas", "HTTPS/JWT")
+Rel(ThreeGStore, APIsVendas, "Consulta dados de vendas", "HTTPS/REST")
+
+@enduml

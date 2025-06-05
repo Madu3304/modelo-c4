@@ -1,0 +1,154 @@
+@startuml 3GStore_Code
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 3GStore - Code Diagram (C4)
+
+Person(administrador, "Administrador", "Tem acesso a todas as telas e funcionalidades")
+
+System_Boundary(3GStore, "3GStore") {
+
+    'Página de Acesso
+    Container_Boundary(PaginaAcesso, "Página Web Acesso") {
+        Component(PA_Frontend, "Login UI", "React", "Interface de login")
+        Container_Boundary(AuthService, "Auth Service (Node.js)") {
+            Component(Class_AuthController, "AuthController", "Node.js", "Controla requisições de login")
+            Component(Class_AuthService, "AuthService", "Node.js", "Valida usuários e gera tokens")
+            Component(Class_JWTUtil, "JWTUtil", "Node.js", "Gera e valida tokens JWT")
+        }
+    }
+
+    'API de Acesso
+    Container_Boundary(AcessoEstoque, "API de Acesso") {
+        Component(Class_UserController, "UserController", "Node.js", "Gerencia endpoints de usuários")
+        Component(Class_UserService, "UserService", "Node.js", "Contém lógica de negócios dos usuários")
+        Component(Class_JWTMiddleware, "JWTMiddleware", "Node.js", "Middleware de autenticação via JWT")
+        Component(Class_UserRepository, "UserRepository", "Node.js", "Acesso ao banco de dados de usuários")
+    }
+
+    'Página Inicial
+    Container_Boundary(PaginaInicial, "Página Web Dashboard") {
+        Component(PI_DashboardUI, "Dashboard UI", "React", "Interface do dashboard")
+        Container_Boundary(DataFetcher, "Data Fetcher (Node.js)") {
+            Component(Class_DataFetcher, "DataFetcher", "Node.js", "Faz requisições para APIs e transforma dados")
+        }
+    }
+
+    'Menu Produto
+    Container_Boundary(PaginaMenuProduto, "Menu Produto") {
+        Component(PMP_MenuUI, "Menu UI", "React", "Interface do menu de produtos")
+        Component(PMP_NavigationService, "Navigation Service", "Node.js", "Gerencia navegação")
+    }
+
+    'Menu Fornecedor
+    Container_Boundary(PaginaMenuFornecedor, "Menu Fornecedor") {
+        Component(PMF_MenuUI, "Menu UI", "React", "Interface do menu de fornecedores")
+        Component(PMF_NavigationService, "Navigation Service", "Node.js", "Gerencia navegação")
+    }
+
+    'Cadastro de Produto
+    Container_Boundary(CadastroProduto, "Cadastro Produto") {
+        Component(PCP_FormUI, "Formulário UI", "React", "Interface de cadastro de produtos")
+        Container_Boundary(ProductService, "Product Service (Node.js)") {
+            Component(Class_ProductController, "ProductController", "Node.js", "Controla endpoints de produtos")
+            Component(Class_ProductService, "ProductService", "Node.js", "Lógica de negócios de produtos")
+            Component(Class_ProductRepository, "ProductRepository", "Node.js", "Acesso ao banco de dados de produtos")
+        }
+    }
+
+    'Cadastro de Fornecedor
+    Container_Boundary(CadastroFornecedor, "Cadastro Fornecedor") {
+        Component(PCF_FormUI, "Formulário UI", "React", "Interface de cadastro de fornecedores")
+        Container_Boundary(SupplierService, "Supplier Service (Node.js)") {
+            Component(Class_SupplierController, "SupplierController", "Node.js", "Controla endpoints de fornecedores")
+            Component(Class_SupplierService, "SupplierService", "Node.js", "Lógica de negócios de fornecedores")
+            Component(Class_SupplierRepository, "SupplierRepository", "Node.js", "Acesso ao banco de dados de fornecedores")
+        }
+    }
+
+    'Estoque Produto
+    Container_Boundary(EstoqueProduto, "Estoque Produto") {
+        Component(PEP_ListUI, "Lista UI", "React", "Apresenta os produtos")
+        Container_Boundary(ProductQueryService, "Product Query Service (Node.js)") {
+            Component(Class_ProductQueryController, "ProductQueryController", "Node.js", "Endpoints de consulta de produtos")
+            Component(Class_ProductQueryService, "ProductQueryService", "Node.js", "Lógica de consulta de produtos")
+        }
+    }
+
+    'Estoque Fornecedor
+    Container_Boundary(EstoqueFornecedor, "Estoque Fornecedor") {
+        Component(PEF_ListUI, "Lista UI", "React", "Apresenta os fornecedores")
+        Container_Boundary(SupplierQueryService, "Supplier Query Service (Node.js)") {
+            Component(Class_SupplierQueryController, "SupplierQueryController", "Node.js", "Endpoints de consulta de fornecedores")
+            Component(Class_SupplierQueryService, "SupplierQueryService", "Node.js", "Lógica de consulta de fornecedores")
+        }
+    }
+
+    'Integração
+    Container_Boundary(Integracao, "API de Integração") {
+        Component(INT_SyncService, "SyncService", "Node.js", "Sincroniza dados externos")
+        Component(INT_DataTransformer, "DataTransformer", "Node.js", "Transforma dados para integração")
+    }
+
+    'Distribuição Estoque (APIs externas)
+    Container_Boundary(DistribEstoque, "Distribuição Estoque") {
+        Component(DE_SalesAPI, "SalesAPI", "Node.js", "API de vendas externas")
+        Component(DE_ReportAPI, "ReportAPI", "Node.js", "API de relatórios")
+    }
+
+    'Banco de Dados
+    ContainerDb(BancoDados, "Banco de Dados", "PostgreSQL", "Armazena dados de produtos, fornecedores, usuários e vendas")
+}
+
+' -----------------------------
+' 🔗 Relacionamentos internos
+' -----------------------------
+
+Rel(administrador, PA_Frontend, "Acessa")
+
+Rel(PA_Frontend, Class_AuthController, "Envia credenciais")
+Rel(Class_AuthController, Class_AuthService, "Valida usuário")
+Rel(Class_AuthService, Class_JWTUtil, "Gera token JWT")
+Rel(Class_AuthController, Class_JWTUtil, "Valida token")
+
+Rel(Class_AuthService, Class_UserRepository, "Consulta usuário")
+Rel(Class_UserRepository, BancoDados, "Lê/Escreve dados")
+
+Rel(Class_UserController, Class_UserService, "Gerencia usuários")
+Rel(Class_UserService, Class_UserRepository, "Acessa dados dos usuários")
+Rel(Class_UserController, Class_JWTMiddleware, "Usa middleware")
+
+Rel(PI_DashboardUI, Class_DataFetcher, "Solicita dados")
+Rel(Class_DataFetcher, INT_SyncService, "Busca dados externos")
+
+Rel(PMP_MenuUI, PMP_NavigationService, "Navegação")
+Rel(PMF_MenuUI, PMF_NavigationService, "Navegação")
+
+Rel(PCP_FormUI, Class_ProductController, "Envia dados")
+Rel(Class_ProductController, Class_ProductService, "Gerencia produtos")
+Rel(Class_ProductService, Class_ProductRepository, "Acessa produtos")
+Rel(Class_ProductRepository, BancoDados, "Lê/Escreve dados")
+
+Rel(PCF_FormUI, Class_SupplierController, "Envia dados")
+Rel(Class_SupplierController, Class_SupplierService, "Gerencia fornecedores")
+Rel(Class_SupplierService, Class_SupplierRepository, "Acessa fornecedores")
+Rel(Class_SupplierRepository, BancoDados, "Lê/Escreve dados")
+
+Rel(PEP_ListUI, Class_ProductQueryController, "Consulta produtos")
+Rel(Class_ProductQueryController, Class_ProductQueryService, "Busca dados")
+Rel(Class_ProductQueryService, BancoDados, "Consulta dados")
+
+Rel(PEF_ListUI, Class_SupplierQueryController, "Consulta fornecedores")
+Rel(Class_SupplierQueryController, Class_SupplierQueryService, "Busca dados")
+Rel(Class_SupplierQueryService, BancoDados, "Consulta dados")
+
+Rel(INT_SyncService, INT_DataTransformer, "Transforma dados")
+Rel(INT_DataTransformer, DE_SalesAPI, "Envia dados para venda")
+Rel(INT_DataTransformer, DE_ReportAPI, "Envia dados para relatórios")
+Rel(INT_SyncService, BancoDados, "Sincroniza dados")
+
+Rel_Back(BancoDados, DE_SalesAPI, "Consulta dados")
+Rel_Back(BancoDados, DE_ReportAPI, "Consulta dados")
+
+@enduml

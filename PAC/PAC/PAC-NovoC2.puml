@@ -1,0 +1,42 @@
+@startuml 3GStore Containers
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+        
+LAYOUT_WITH_LEGEND()
+
+title 3GStore - Containers Diagram
+
+Person(administrador, "Administrador", "Tem acesso a todas as telas, e usurá o software")
+
+System_Boundary(3GStore, "Sistema de gerenciamento de estoque") {
+    Container(PáginaAcesso, "Página Web Acesso", "React", "Página de login para mediar o acesso ao estoque")
+    Container(AcessoEstoque, "API", "REACT/JavaScript e node, JWT", "Processa solicitações de acesso por meio da politica de acesso")
+    Container(PáginaInicial, "Página Web dashboard Adm", "React/JavaScript e node","Página com metricas das vendas por cada API/dashboard" )
+    Container(PáginaMenuProduto, "Página Web adm","React/JavaScript e node", "Página menu para escolher se quer cadastrar um novo produto ou ver o Estoque dos produtos")
+    Container(PáginaMenuFornecedor, "Página Web adm","React/JavaScript e node", "Página menu para escolher se quer cadastrar um novo Fornecedor ou ver a lista de Fornecedor")
+    Container(PáginaCadastrarProduto, "Página Web Adm","React/JavaScript e node", "Página de cadastramento de produtos.")
+    Container(PáginaCadastrarFornecedores, "Página Web Adm","React/JavaScript e node", "Página de cadastramento de Fornecedores.")
+    Container(PáginaEstoqueFornecedor, "Página Web Adm", "React/JavaScript e node","Página para verificar os fornecedores atuais" )
+    Container(PáginaEstoqueProduto, "Página Web Adm", "React/JavaScript e node","Página para verificar os Produtos em estoque" )
+    ContainerDb(BancoDados,"Banco de Dados do Estoque", "PostGreSQL", "Armazena dados dos fornecedores, produtos e Vendas")
+    Container(Integração, "API", "JavaScript e node", "Integração Api do Estoque e APIs externas de vendas.")
+    Container(DistribEstoque, "APIs","JavaScript e node", "Integração com APIs de vendas")
+}
+Rel(administrador, PáginaAcesso, "Uses", "HTTPS/JWT")
+Rel_Neighbor(PáginaAcesso, AcessoEstoque, "deliver token-user", "uses", "HTTPS")
+Rel_Neighbor(AcessoEstoque, PáginaInicial, "deliver token-user", "uses", "HTTPS/REST")
+Rel_Neighbor(PáginaInicial, Integração, "deliver token-user", "uses", "HTTPS/REST")
+Rel(Integração, BancoDados, "write", "Uses","KeyAddress")
+Rel_Neighbor(AcessoEstoque, PáginaInicial, "deliver token-user", "uses", "HTTPS/REST")
+Rel_Neighbor(PáginaInicial, PáginaMenuProduto, "deliver token-user", "uses", "HTTPS/REST")
+Rel(PáginaMenuProduto, Integração, "write", "Uses","KeyAddress")
+Rel(Integração, BancoDados, "write", "Uses","KeyAddress")
+Rel_Neighbor(PáginaMenuProduto, PáginaCadastrarProduto, "deliver token-user", "uses", "HTTPS/REST")
+Rel_Neighbor(PáginaMenuProduto, PáginaEstoqueProduto, "deliver token-user", "uses", "HTTPS/REST")
+Rel_Neighbor(PáginaInicial, PáginaMenuFornecedor, "deliver token-user", "uses", "HTTPS/REST")
+Rel(PáginaMenuFornecedor, Integração, "write", "Uses","KeyAddress")
+Rel(Integração, BancoDados, "write", "Uses","KeyAddress")
+Rel_Neighbor(PáginaMenuFornecedor, PáginaCadastrarFornecedores, "deliver token-user", "uses", "HTTPS/REST")
+Rel_Neighbor(PáginaMenuFornecedor, PáginaEstoqueFornecedor, "deliver token-user", "uses", "HTTPS/REST")
+Rel(AcessoEstoque, BancoDados, "write", "Uses","KeyAddress")
+Rel_Back(BancoDados, DistribEstoque, "read", "Uses","KeyAddress")
+@enduml
