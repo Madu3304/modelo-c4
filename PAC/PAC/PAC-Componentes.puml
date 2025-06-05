@@ -1,0 +1,27 @@
+@startuml 3GStore_AcessoEstoque_Componentes
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 3GStore - AcessoEstoque - Diagrama de Componentes
+
+Container_Boundary(AcessoEstoque, "AcessoEstoque - API") {
+
+    Component(ControllerAuth, "AuthController", "Node.js/Express", "Controla as requisições de login e autenticação")
+    Component(ServiceAuth, "AuthService", "Node.js", "Valida credenciais, gera tokens JWT e gerencia sessões")
+    Component(ServicePolicy, "PolicyService", "Node.js", "Gerencia regras de acesso e políticas de autorização")
+    Component(RepositoryUser, "UserRepository", "Node.js + Sequelize", "Acessa os dados dos usuários no banco")
+    Component(JWT, "JWT Manager", "Biblioteca", "Gera e valida tokens JWT")
+}
+
+Rel(administrador, ControllerAuth, "Acessa via", "HTTPS/REST")
+
+Rel(ControllerAuth, ServiceAuth, "Chama")
+Rel(ServiceAuth, RepositoryUser, "Consulta dados do usuário")
+Rel(ServiceAuth, JWT, "Gera e valida token")
+Rel(ControllerAuth, ServicePolicy, "Consulta políticas de acesso")
+Rel(ServicePolicy, RepositoryUser, "Consulta dados de perfil e permissões")
+
+Rel(RepositoryUser, BancoDados, "Read/Write", "PostgreSQL")
+
+@enduml
