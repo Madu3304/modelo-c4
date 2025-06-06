@@ -101,10 +101,6 @@ System_Boundary(3GStore, "3GStore") {
     ContainerDb(BancoDados, "Banco de Dados", "PostgreSQL", "Armazena dados de produtos, fornecedores, usuários e vendas")
 }
 
-' -----------------------------
-' 🔗 Relacionamentos internos
-' -----------------------------
-
 Rel(administrador, PA_Frontend, "Acessa")
 
 Rel(PA_Frontend, Class_AuthController, "Envia credenciais")
